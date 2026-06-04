@@ -1,0 +1,4 @@
+graphroute.exe
+*.o
+output/
+.vscode/
