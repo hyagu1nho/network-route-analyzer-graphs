@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <unordered_set>
 
 int main(int argc, char *argv[]){
     // verify if the log was provided
@@ -10,7 +11,7 @@ int main(int argc, char *argv[]){
         std::cerr << "Uso: ./graphroute <arquivo_de_log>"; // expected usage format
         return 1;
     }
-    
+
     // open the log file passed as an argument    
     std::ifstream inputFile(argv[1]);
     // abort if the file can't be read
@@ -18,6 +19,12 @@ int main(int argc, char *argv[]){
         std::cerr << "Falha ao encontrar o arquivo digitado." << std::endl;
         return 1;
     }
+
+        
+    // tracks unique edges to avoid duplicates
+    std::unordered_set<std::string> seenEdges;
+    // tracks unique IP addresses (vertices)
+    std::unordered_set<std::string> vertices;
 
     std::string line;
     // skip header line
@@ -47,7 +54,23 @@ int main(int argc, char *argv[]){
         if (hopFrom.empty() || hopTo.empty())
             continue;
                 
-        std::cout << hopFrom << " -> " << hopTo << std::endl;   
+        // unique key for the edge (e.g. "1.1.1.1->2.2.2.2")
+        std::string edgeKey = hopFrom + "->" + hopTo;
+
+        // skip if this edge has already been seen
+        if (seenEdges.count(edgeKey))
+            continue;
+
+        // register edge and both endpoints
+        seenEdges.insert(edgeKey);
+        vertices.insert(hopFrom);
+        vertices.insert(hopTo);
     }
+
+    // print summary after loading
+    std::cout << "\nGrafo de roteamento inicializado!" << std::endl;
+    std::cout << "Vertices unicos (IPs): " << vertices.size()
+    << " | Arestas: " << seenEdges.size() << std::endl;
+
     return 0;
 }
