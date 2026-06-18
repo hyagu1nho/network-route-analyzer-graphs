@@ -4,6 +4,7 @@
 #include <vector>
 #include <sstream>
 #include <unordered_set>
+#include <unordered_map>
 
 int main(int argc, char *argv[]){
     // verify if the log was provided
@@ -26,7 +27,14 @@ int main(int argc, char *argv[]){
     // tracks unique IP addresses (vertices)
     std::unordered_set<std::string> vertices;
 
+    //adjacency list graph
+    std::unordered_map<
+        std::string,
+        std::unordered_set<std::string>
+    > grafo;
+
     std::string line;
+
     // skip header line
     std::getline(inputFile, line);
 
@@ -65,12 +73,26 @@ int main(int argc, char *argv[]){
         seenEdges.insert(edgeKey);
         vertices.insert(hopFrom);
         vertices.insert(hopTo);
+
+        //add edge to adjency list
+        grafo[hopFrom].insert(hopTo);
     }
 
     // print summary after loading
     std::cout << "\nGrafo de roteamento inicializado!" << std::endl;
     std::cout << "Vertices unicos (IPs): " << vertices.size()
     << " | Arestas: " << seenEdges.size() << std::endl;
+
+    //graph test
+    std::cout << "\nLista de adjacencia:\n" << std::endl;
+
+    for(const auto& [origem, destinos] : grafo){
+        std::cout << origem << "-> ";
+        for(const auto& destino : destinos) {
+            std::cout << destino << " ";
+        }
+        std::cout << std::endl;
+    }
 
     return 0;
 }
