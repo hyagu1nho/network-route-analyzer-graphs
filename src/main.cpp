@@ -5,6 +5,8 @@
 #include <sstream>
 #include <unordered_set>
 #include <unordered_map>
+#include <queue>
+#include <algorithm>
 
 int main(int argc, char *argv[]){
     // verify if the log was provided
@@ -76,6 +78,8 @@ int main(int argc, char *argv[]){
 
         //add edge to adjency list
         grafo[hopFrom].insert(hopTo);
+
+        grafo[hopTo];
     }
 
     // print summary after loading
@@ -109,15 +113,116 @@ int main(int argc, char *argv[]){
                           << std::endl;
                 break;
 
-            case 2:
-                std::cout << "\nteste"
-                          << std::endl;
-                break;
+            case 2: {
+                std::string origem;
+                std::string destino;
 
-            case 3:
-                std::cout << "\nteste"
+                std::cout << "\nIP de origem:";
+                std::cin >> origem;
+
+                std::cout << "IP de destino: ";
+                std::cin >> destino;
+
+                if(!grafo.count(origem) || !grafo.count(destino)){
+                    std::cout << "\nIP nao encontrado no grafo."
+                              << std::endl;
+                    break;
+                }
+
+                std::queue<std::string> fila;
+                std::unordered_set<std::string> visitados;
+                std::unordered_map<std::string, std::string> pai;
+
+                fila.push(origem);
+                visitados.insert(origem);
+
+                bool find = false;
+
+                while(!fila.empty()){
+                    std::string atual = fila.front();
+                    fila.pop();
+
+                    if(atual == destino){
+                        find = true;
+                        break;
+                    }
+
+                    for(const auto& vizinho : grafo[atual]){
+                        if(!visitados.count(vizinho)){
+                            visitados.insert(vizinho);
+                            pai[vizinho] = atual;
+
+                            fila.push(vizinho);
+                        }
+                    }
+                }
+
+                if(!find){
+                    std::cout << "\nNao existe caminho entre os vertices."
+                              << std::endl;
+                    break;
+                }
+
+                std::vector<std::string> caminho;
+
+                std::string atual = destino;
+
+                while(atual != origem){
+                    caminho.push_back(atual);
+                    atual = pai[atual];
+                }
+
+                caminho.push_back(origem);
+
+                std::reverse(caminho.begin(), caminho.end());
+
+                std::cout << "\nMenor caminho encontrado:\n"
+                          << std::endl;
+
+                for(size_t i = 0; i < caminho.size(); i++){
+                    std::cout << caminho[i];
+                    if(i < caminho.size() - 1)
+                        std::cout << " -> ";
+                }
+
+                std::cout << "\n\nSaltos: "
+                          << caminho.size() - 1
                           << std::endl;
                 break;
+            }
+         
+            case 3: {
+                int diametro = 0;
+
+                for(const auto& origem : vertices){
+                    std::queue<std::string> fila;
+                    std::unordered_map<std::string, int>dist;
+
+                    fila.push(origem);
+                    dist[origem] = 0;
+
+                    while(!fila.empty()){
+                        std::string atual = fila.front();
+                        fila.pop();
+
+                        for(const auto& vizinho : grafo[atual]){
+                            if(!dist.count(vizinho)){
+                                dist[vizinho] = dist[atual] + 1;
+                                fila.push(vizinho);
+
+                                if(dist[vizinho] > diametro)
+                                    diametro = dist[vizinho];
+                            }
+                        }
+
+                    }
+                }
+
+                std::cout << "\nDiametro do grafo:"
+                          << diametro << std::endl;
+                break;
+            }
+          
 
             case 4:
                 std::cout << "\nteste"
