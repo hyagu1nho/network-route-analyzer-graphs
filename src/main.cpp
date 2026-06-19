@@ -83,16 +83,58 @@ int main(int argc, char *argv[]){
     std::cout << "Vertices unicos (IPs): " << vertices.size()
     << " | Arestas: " << seenEdges.size() << std::endl;
 
-    //graph test
-    std::cout << "\nLista de adjacencia:\n" << std::endl;
+    int opcao;
 
-    for(const auto& [origem, destinos] : grafo){
-        std::cout << origem << "-> ";
-        for(const auto& destino : destinos) {
-            std::cout << destino << " ";
+    do{
+        std::cout << "\n===== GRAPH ROUTE ======" << std::endl;
+        std::cout << "1 - Exibir estatisticas do grafo" << std::endl;
+        std::cout << "2 - Encontrar menor caminho" << std::endl;
+        std::cout << "3 - Calcular diametro" << std::endl;
+        std::cout << "4 - Identificar roteadores criticos" << std::endl;
+        std::cout << "0 - Sair" << std::endl;
+
+        std::cout << "\nOpcao: ";
+        std::cin >> opcao;
+
+        switch(opcao){
+
+            case 1:
+                std::cout << "\nEstatisticas do grafo" << std::endl;
+                std::cout << "Vertices: "
+                          << vertices.size()
+                          << std::endl;
+
+                std::cout << "Arestas: "
+                          << seenEdges.size()
+                          << std::endl;
+                break;
+
+            case 2:
+                std::cout << "\nteste"
+                          << std::endl;
+                break;
+
+            case 3:
+                std::cout << "\nteste"
+                          << std::endl;
+                break;
+
+            case 4:
+                std::cout << "\nteste"
+                          << std::endl;
+                break;
+
+            case 0:
+                std::cout << "\nEncerrando o programa..."
+                          << std::endl;
+                break;
+
+            default:
+                std::cout << "\nOpcao invalida."
+                          << std::endl;
         }
-        std::cout << std::endl;
-    }
 
+    } while (opcao != 0);
+    
     return 0;
 }
