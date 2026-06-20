@@ -15,6 +15,8 @@ int main(int argc, char *argv[]){
         return 1;
     }
 
+    std::string archiveName = argv[1];
+
     // open the log file passed as an argument    
     std::ifstream inputFile(argv[1]);
     // abort if the file can't be read
@@ -33,14 +35,14 @@ int main(int argc, char *argv[]){
     std::unordered_map<
         std::string,
         std::unordered_set<std::string>
-    > grafo;
+    > graph;
 
     std::string line;
 
     // skip header line
     std::getline(inputFile, line);
 
-    // split each line into fields and print the hopFrom -> hopTo pair
+    // split each line into fields 
     while(std::getline(inputFile, line)){
         std::stringstream ss(line);
         std::vector<std::string> fields;
@@ -76,10 +78,10 @@ int main(int argc, char *argv[]){
         vertices.insert(hopFrom);
         vertices.insert(hopTo);
 
-        //add edge to adjency list
-        grafo[hopFrom].insert(hopTo);
+        // add edge to adjacency list
+        graph[hopFrom].insert(hopTo);
 
-        grafo[hopTo];
+        graph[hopTo];
     }
 
     // print summary after loading
@@ -87,159 +89,197 @@ int main(int argc, char *argv[]){
     std::cout << "Vertices unicos (IPs): " << vertices.size()
     << " | Arestas: " << seenEdges.size() << std::endl;
 
-    int opcao;
+    int option;
 
     do{
-        std::cout << "\n===== GRAPH ROUTE ======" << std::endl;
-        std::cout << "1 - Exibir estatisticas do grafo" << std::endl;
+        std::cout << "\n==========================================================" << std::endl;
+        std::cout << "\n===================== GRAPH ROUTE ========================" << std::endl;
+        std::cout << "\n==========================================================" << std::endl;
+        std::cout << "1 - Exibir grafo completo" << std::endl;
         std::cout << "2 - Encontrar menor caminho" << std::endl;
         std::cout << "3 - Calcular diametro" << std::endl;
         std::cout << "4 - Identificar roteadores criticos" << std::endl;
         std::cout << "0 - Sair" << std::endl;
+        std::cout << "==========================================================" << std::endl;
 
         std::cout << "\nOpcao: ";
-        std::cin >> opcao;
+        std::cin >> option;
 
-        switch(opcao){
+        switch(option){
 
-            case 1:
-                std::cout << "\nEstatisticas do grafo" << std::endl;
-                std::cout << "Vertices: "
-                          << vertices.size()
-                          << std::endl;
+            case 1: {
+                std::string dotFile = archiveName + ".dot";
+                std::ofstream file(dotFile);
 
-                std::cout << "Arestas: "
-                          << seenEdges.size()
-                          << std::endl;
+                file << "digraph G {" << std::endl;
+
+                for(const auto& pair : graph){
+                    for(const auto& destination : pair.second){
+                        file << "    \"" << pair.first << "\" -> \"" << destination << "\";" << std::endl;
+                    }
+                }
+
+                file << "}" << std::endl;
+                file.close();
+
+                std::cout << "\nArquivo " << dotFile << " gerado!" << std::endl;
+
+                int outputFormat;
+                std::cout << "\nSelecione o formato de saida:" << std::endl;
+                std::cout << "1 - Tela" << std::endl;
+                std::cout << "2 - Imagem (PNG)" << std::endl;
+                std::cout << "3 - Documento (PDF)" << std::endl;
+                std::cout << "\nOpcao: ";
+                std::cin >> outputFormat;
+
+                switch(outputFormat){
+                    case 1 : {
+                        std::string command = "dot -Tx11 " + dotFile;
+                        system(command.c_str());
+                        break;
+                    }
+                    case 2 : {
+                        std::string pngFile = archiveName + ".png";
+                        system(("dot -Tpng " + dotFile + " -o " + pngFile).c_str());
+                        std::cout << "\nArquivo " << pngFile << " gerado!" << std::endl;
+                        break;
+                    }
+                    case 3 : {
+                        std::string pdfFile = archiveName + ".pdf";
+                        system(("dot -Tpdf " + dotFile + " -o " + pdfFile).c_str());
+                        std::cout << "\nArquivo " << pdfFile << " gerado!" << std::endl;
+                        break;  
+                    }
+                }
                 break;
+            }
 
             case 2: {
-                std::string origem;
-                std::string destino;
+                std::string source;
+                std::string destination;
 
-                std::cout << "\nIP de origem:";
-                std::cin >> origem;
+                std::cout << "\nIP de origem: ";
+                std::cin >> source;
 
                 std::cout << "IP de destino: ";
-                std::cin >> destino;
+                std::cin >> destination;
 
-                if(!grafo.count(origem) || !grafo.count(destino)){
+                if(!graph.count(source) || !graph.count(destination)){
                     std::cout << "\nIP nao encontrado no grafo."
                               << std::endl;
                     break;
                 }
 
-                std::queue<std::string> fila;
-                std::unordered_set<std::string> visitados;
-                std::unordered_map<std::string, std::string> pai;
+                std::queue<std::string> bfsQueue;
+                std::unordered_set<std::string> visited;
+                std::unordered_map<std::string, std::string> parent;
 
-                fila.push(origem);
-                visitados.insert(origem);
+                bfsQueue.push(source);
+                visited.insert(source);
 
-                bool find = false;
+                bool found = false;
 
-                while(!fila.empty()){
-                    std::string atual = fila.front();
-                    fila.pop();
+                while(!bfsQueue.empty()){
+                    std::string current = bfsQueue.front();
+                    bfsQueue.pop();
 
-                    if(atual == destino){
-                        find = true;
+                    if(current == destination){
+                        found = true;
                         break;
                     }
 
-                    for(const auto& vizinho : grafo[atual]){
-                        if(!visitados.count(vizinho)){
-                            visitados.insert(vizinho);
-                            pai[vizinho] = atual;
+                    for(const auto& neighbor : graph[current]){
+                        if(!visited.count(neighbor)){
+                            visited.insert(neighbor);
+                            parent[neighbor] = current;
 
-                            fila.push(vizinho);
+                            bfsQueue.push(neighbor);
                         }
                     }
                 }
 
-                if(!find){
+                if(!found){
                     std::cout << "\nNao existe caminho entre os vertices."
                               << std::endl;
                     break;
                 }
 
-                std::vector<std::string> caminho;
+                std::vector<std::string> path;
 
-                std::string atual = destino;
+                std::string current = destination;
 
-                while(atual != origem){
-                    caminho.push_back(atual);
-                    atual = pai[atual];
+                while(current != source){
+                    path.push_back(current);
+                    current = parent[current];
                 }
 
-                caminho.push_back(origem);
+                path.push_back(source);
 
-                std::reverse(caminho.begin(), caminho.end());
+                std::reverse(path.begin(), path.end());
 
                 std::cout << "\nMenor caminho encontrado:\n"
                           << std::endl;
 
-                for(size_t i = 0; i < caminho.size(); i++){
-                    std::cout << caminho[i];
-                    if(i < caminho.size() - 1)
+                for(size_t i = 0; i < path.size(); i++){
+                    std::cout << path[i];
+                    if(i < path.size() - 1)
                         std::cout << " -> ";
                 }
 
                 std::cout << "\n\nSaltos: "
-                          << caminho.size() - 1
+                          << path.size() - 1
                           << std::endl;
                 break;
             }
          
             case 3: {
-                int diametro = 0;
+                int diameter = 0;
 
-                for(const auto& origem : vertices){
-                    std::queue<std::string> fila;
-                    std::unordered_map<std::string, int>dist;
+                for(const auto& source : vertices){
+                    std::queue<std::string> bfsQueue;
+                    std::unordered_map<std::string, int> dist;
 
-                    fila.push(origem);
-                    dist[origem] = 0;
+                    bfsQueue.push(source);
+                    dist[source] = 0;
 
-                    while(!fila.empty()){
-                        std::string atual = fila.front();
-                        fila.pop();
+                    while(!bfsQueue.empty()){
+                        std::string current = bfsQueue.front();
+                        bfsQueue.pop();
 
-                        for(const auto& vizinho : grafo[atual]){
-                            if(!dist.count(vizinho)){
-                                dist[vizinho] = dist[atual] + 1;
-                                fila.push(vizinho);
+                        for(const auto& neighbor : graph[current]){
+                            if(!dist.count(neighbor)){
+                                dist[neighbor] = dist[current] + 1;
+                                bfsQueue.push(neighbor);
 
-                                if(dist[vizinho] > diametro)
-                                    diametro = dist[vizinho];
+                                if(dist[neighbor] > diameter)
+                                    diameter = dist[neighbor];
                             }
                         }
-
                     }
                 }
 
-                std::cout << "\nDiametro do grafo:"
-                          << diametro << std::endl;
+                std::cout << "\nDiametro do grafo: "
+                          << diameter << std::endl;
                 break;
             }
-          
 
-            case 4:
+            case 4: {
                 std::cout << "\nteste"
                           << std::endl;
                 break;
-
-            case 0:
+            }
+            case 0: {
                 std::cout << "\nEncerrando o programa..."
                           << std::endl;
                 break;
-
-            default:
+            }
+            default: {
                 std::cout << "\nOpcao invalida."
                           << std::endl;
+            }
         }
 
-    } while (opcao != 0);
+    } while (option != 0);
     
     return 0;
 }
