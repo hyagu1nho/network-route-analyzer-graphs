@@ -52,7 +52,7 @@ g++ -std=c++17 -O2 -o graphroute src/main.cpp
 **Exemplo:**
 
 ```bash
-./graphroute input_1.log
+./graphroute data/input_1.log
 ```
 
 ---
