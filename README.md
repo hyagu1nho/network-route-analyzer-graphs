@@ -18,10 +18,9 @@ Projeto desenvolvido para a disciplina de **Estruturas de Dados II** /  UPF.
 
 ## Professor
 
-> Leonardo Costella
+ Leonardo Costella
 
 ---
-
 ## Dependências
 
 - **Compilador C++17** — `g++` (GCC 9+)
@@ -39,7 +38,7 @@ sudo apt install graphviz
 ## Compilação
 
 ```bash
-g++ -std=c++17 -O2 -o graphroute main.cpp
+g++ -std=c++17 -O2 -o graphroute src/main.cpp
 ```
 
 ---
@@ -96,15 +95,15 @@ Linhas com `hop_to = *` (timeout) ou com campos `hop_from`/`hop_to` em branco s�
 
 ### 1. Exibir Grafo Completo
 Gera um arquivo `.dot` com a topologia completa e oferece exportação para:
-- **Tela** — abre janela interativa via Graphviz
-- **PNG** — salva `<arquivo>.png` na pasta atual
-- **PDF** — salva `<arquivo>.pdf` na pasta atual
+- **Tela** - abre janela interativa via Graphviz
+- **PNG** - salva `<arquivo>.png` na pasta atual
+- **PDF** - salva `<arquivo>.pdf` na pasta atual
 
 ### 2. Encontrar Menor Caminho
 Solicita dois IPs (origem e destino) e calcula o caminho com o **menor número de saltos** usando BFS. Exibe a sequência de IPs e o total de saltos. Também gera visualização com o caminho destacado.
 
 ### 3. Calcular Diâmetro do Grafo
-Calcula e exibe o **diâmetro** do grafo — a maior distância mínima entre qualquer par de vértices alcançáveis.
+Calcula e exibe o **diâmetro** do grafo, a maior distância mínima entre qualquer par de vértices alcançáveis.
 
 ### 4. Identificar Roteadores Críticos
 Exibe o **Top 5 IPs com maior grau de entrada (in-degree)**, identificando os principais hubs de infraestrutura presentes no log.
@@ -113,26 +112,26 @@ Exibe o **Top 5 IPs com maior grau de entrada (in-degree)**, identificando os pr
 
 ## Justificativa das escolhas técnicas
 
-### Estrutura de dados — Lista de Adjacência com `unordered_map` + `unordered_set`
+### Estrutura de dados - Lista de Adjacência com `unordered_map` + `unordered_set`
 
 A lista de adjacência foi implementada como `unordered_map<string, unordered_set<string>>`. Essa combinação oferece:
 - **O(1) amortizado** para inserção e busca de vértices e arestas
 - **Eliminação automática de arestas duplicadas** pelo `unordered_set`, sem necessidade de verificação manual
 - Eficiência de memória proporcional ao número real de arestas (esparsidade típica de grafos de rede)
 
-### Menor caminho — BFS (Busca em Largura)
+### Menor caminho -  BFS (Busca em Largura)
 
 Como o grafo é **não ponderado**, o BFS garante que o primeiro caminho encontrado até o destino é necessariamente o de menor número de saltos. Complexidade: **O(V + E)**.
 
-### Diâmetro — BFS a partir de cada vértice
+### Diâmetro - BFS a partir de cada vértice
 
 O diâmetro é calculado executando BFS a partir de todos os vértices e rastreando a maior distância mínima encontrada. Complexidade: **O(V × (V + E))**, adequada para o volume dos logs fornecidos.
 
-### Roteadores críticos — contagem de in-degree
+### Roteadores críticos -  contagem de in-degree
 
 Para cada aresta `u → v` inserida no grafo, o grau de entrada de `v` é incrementado em um `unordered_map<string, int>`. Ao final, os cinco maiores valores são extraídos. Complexidade: **O(V log V)** para ordenação parcial.
 
-### Visualização — Graphviz (formato DOT)
+### Visualização - Graphviz (formato DOT)
 
 O formato `.dot` foi escolhido por ser o padrão da ferramenta Graphviz, amplamente disponível em sistemas Linux e compatível com os formatos de saída exigidos (tela, PNG, PDF). A geração do arquivo é feita pelo próprio programa e a renderização é delegada ao binário `dot` via `system()`.
 
