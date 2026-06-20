@@ -264,8 +264,24 @@ int main(int argc, char *argv[]){
             }
 
             case 4: {
-                std::cout << "\nteste"
+                std::unordered_map<std::string, int> inDegree;
+
+                for(const auto& pair : graph){
+                    for(const auto& destination : pair.second){
+                        inDegree[destination]++;
+                    }
+                }
+                std::vector<std::pair<std::string, int>> ranking(inDegree.begin(), inDegree.end());
+                std::sort(ranking.begin(), ranking.end(),
+                    [](const auto& a, const auto& b){
+                        return a.second > b.second;
+                    }
+                );
+                std::cout << "\nRoteadores criticos:\n"
                           << std::endl;
+                for(size_t i = 0; i < std::min(ranking.size(), size_t(5)); i++){
+                    std::cout << ranking[i].first << " (grau de entrada: " << ranking[i].second << ")" << std::endl;
+                }
                 break;
             }
             case 0: {
