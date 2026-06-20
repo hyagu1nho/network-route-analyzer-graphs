@@ -1,4 +1,4 @@
-# Network Route Analyzer — Grafos
+# Network Route Analyzer
 
 Analisador de topologia de rede construído a partir de logs de traceroute. O programa lê um arquivo `.log` contendo registros de saltos entre roteadores, constrói um **grafo direcionado não ponderado** em memória e disponibiliza um menu interativo para consultas e visualizações.
 
