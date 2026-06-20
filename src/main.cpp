@@ -229,6 +229,65 @@ int main(int argc, char *argv[]){
                 std::cout << "\n\nSaltos: "
                           << path.size() - 1
                           << std::endl;
+
+                std::unordered_set<std::string> pathEdges;
+                for(size_t i = 0; i < path.size() - 1; i++){
+                    std::string edgeKey = path[i] + "->" + path[i + 1];
+                    pathEdges.insert(edgeKey);
+                }
+
+                std::string dotFile = archiveName + ".dot";
+                std::ofstream file(dotFile);
+                file << "digraph G {" << std::endl;
+
+                for(const auto& pair : graph){
+                    for(const auto& dest : pair.second){
+                        std::string edgeKey = pair.first + "->" + dest;
+                        if(pathEdges.count(edgeKey)){
+                            file << "    \"" << pair.first << "\" -> \"" << dest << "\" [color=red];" << std::endl;
+                        } else {
+                            file << "    \"" << pair.first << "\" -> \"" << dest << "\";" << std::endl;
+                        }
+                    }
+                }
+
+                for(size_t i = 0; i < path.size() - 1; i++){
+                    file << "    \"" << path[i] << "\" [style=filled, fillcolor=green];" << std::endl;
+                }
+
+                file << "    \"" << path.back() << "\" [style=filled, fillcolor=red];" << std::endl;
+
+                file << "}" << std::endl;
+                file.close();
+
+                int outputFormat;
+                std::cout << "\nSelecione o formato de saida:" << std::endl;
+                std::cout << "1 - Tela" << std::endl;
+                std::cout << "2 - Imagem (PNG)" << std::endl;
+                std::cout << "3 - Documento (PDF)" << std::endl;
+                std::cout << "\nOpcao: ";
+                std::cin >> outputFormat;
+
+                switch(outputFormat){
+                    case 1 : {
+                        std::string command = "dot -Tx11 " + dotFile;
+                        system(command.c_str());
+                        break;
+                    }
+                    case 2 : {
+                        std::string pngFile = archiveName + ".png";
+                        system(("dot -Tpng " + dotFile + " -o " + pngFile).c_str());
+                        std::cout << "\nArquivo " << pngFile << " gerado!" << std::endl;
+                        break;
+                    }
+                    case 3 : {
+                        std::string pdfFile = archiveName + ".pdf";
+                        system(("dot -Tpdf " + dotFile + " -o " + pdfFile).c_str());
+                        std::cout << "\nArquivo " << pdfFile << " gerado!" << std::endl;
+                        break;  
+                    }
+                }
+
                 break;
             }
          
